@@ -1,0 +1,104 @@
+
+import weka.core.Attribute;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+import weka.core.AttributeStats;
+
+public class WekaExperiment {
+
+    public static void main(String[] args) throws Exception {
+
+        // Dataset file paths
+        String[] datasets = {
+            "weather.nominal.arff",
+            "iris.arff"
+        };
+
+        for (String file : datasets) {
+            System.out.println("\n==================================");
+            System.out.println("Dataset: " + file);
+            System.out.println("==================================");
+
+            // Load dataset
+            Instances data = DataSource.read(file);
+
+            // Set the last attribute as the class attribute
+            data.setClassIndex(data.numAttributes() - 1);
+
+            // Display number of instances and attributes
+            System.out.println("Number of Instances: "
+                    + data.numInstances());
+            System.out.println("Number of Attributes: "
+                    + data.numAttributes());
+
+            // Display attribute names and types
+            System.out.println("\nAttribute Names and Types:");
+
+            for (int i = 0; i < data.numAttributes(); i++) {
+                Attribute attr = data.attribute(i);
+
+                String type;
+
+                if (attr.isNominal()) {
+                    type = "Nominal";
+                } else if (attr.isNumeric()) {
+                    type = "Numeric";
+                } else if (attr.isString()) {
+                    type = "String";
+                } else if (attr.isDate()) {
+                    type = "Date";
+                } else {
+                    type = "Other";
+                }
+
+                System.out.println((i + 1) + ". "
+                        + attr.name() + " - " + type);
+            }
+
+            // Display class attribute
+            Attribute classAttr = data.classAttribute();
+
+            System.out.println("\nClass Attribute: "
+                    + classAttr.name());
+
+            // Display class distribution and histogram
+            System.out.println("\nClass Distribution:");
+
+            if (classAttr.isNominal()) {
+                AttributeStats stats =
+                        data.attributeStats(data.classIndex());
+
+                int[] counts = stats.nominalCounts;
+
+                for (int i = 0; i < classAttr.numValues(); i++) {
+                    String value = classAttr.value(i);
+                    int count = counts[i];
+
+                    System.out.printf("%-20s = %d%n",
+                            value, count);
+
+                    // Simple text-based histogram
+                    System.out.printf("%-20s | ",
+                            value);
+
+                    for (int j = 0; j < count; j++) {
+                        System.out.print("*");
+                    }
+
+                    System.out.println();
+                }
+            } else {
+                System.out.println(
+                    "Class is numeric; use a numeric histogram."
+                );
+            }
+
+            // Display the first five records
+            System.out.println("\nFirst Five Records:");
+
+            for (int i = 0; i < Math.min(5, data.numInstances()); i++) {
+                System.out.println(data.instance(i));
+            }
+        }
+    }
+}
